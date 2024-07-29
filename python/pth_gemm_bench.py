@@ -43,4 +43,6 @@ if __name__ == "__main__":
     timer_matmul(torch.float, 4096, 4096, 4096)
     timer_matmul(torch.float16, 4096, 4096, 4096)
     timer_matmul(torch.bfloat16, 4096, 4096, 4096)
-    timer_matmul(torch.float8, 4096, 4096, 4096)
+    # timer_matmul(torch.float8_e5m2, 4096, 4096, 4096)
+    # timer_matmul(torch.float8_e4m3, 4096, 4096, 4096)
+
