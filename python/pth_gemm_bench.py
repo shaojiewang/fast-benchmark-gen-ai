@@ -20,7 +20,7 @@ def timer_matmul(dt = torch.double, m = 1024, n = 1024, k = 1024, warmup_num = 2
     torch.cuda.synchronize()
     elapsed_time_ms = start_event.elapsed_time(end_event)
     elapsed_time_ms_avg = elapsed_time_ms / total_num
-    total_tflops = m * n * k * 2 / 1000 / 1000 / 1000;
+    total_tflops = m * n * k * 2 / 1000 / 1000 / 1000
     total_GBs = (a_full.nbytes + b_full.nbytes + c.nbytes) / 1000 / 1000
     str_time = """dt={F_dt}, mnk={F_m}, {F_n}, {F_k}, elapsed_time_ms={F_time}, tflops={F_tflops}, GB/s={F_bw}"""
     tflops = total_tflops / elapsed_time_ms_avg
@@ -35,7 +35,7 @@ def timer_matmul(dt = torch.double, m = 1024, n = 1024, k = 1024, warmup_num = 2
         dt_str = "bfloat16"
     elif dt == torch.float8:
         dt_str = "float8"
-    print(str_time.format(F_dt=dt_str, F_m=m, F_n=n, F_k=k, F_time=elapsed_time_ms_avg, F_tflops=tflops, F_bw=hbm_bw))
+    print(str_time.format(F_dt=dt_str, F_m=m, F_n=n, F_k=k, F_time=round(elapsed_time_ms_avg, 2), F_tflops=round(tflops, 2), F_bw=round(hbm_bw, 2)))
 
 if __name__ == "__main__":
     print("bench")
