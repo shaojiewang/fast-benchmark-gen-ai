@@ -1,4 +1,6 @@
 
+import timeit
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -32,30 +34,36 @@ def split_conv(input, weight, *args, **kwargs):
                 output += torch_conv3d(split_inputs[i], split_conv_weight[i], *args, **kwargs)
         return output
 
+def time_op(func, *args):
+    timeit. 
+    pass    
+
 if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--batch_size", type=int)
-    parser.add_argument("--out_channels", type=int)
-    parser.add_argument("--in_channels", type=int)
-    parser.add_argument("--time", type=int)
-    parser.add_argument("--height", type=int)
-    parser.add_argument("--weight", type=int)
-    parser.add_argument("--kernel_time", type=int)
-    parser.add_argument("--kernel_height", type=int)
-    parser.add_argument("--kernel_weight", type=int)
+    parser.add_argument("-bs", "--batch_size", type=int)
+    parser.add_argument("-oc", "--out_channels", type=int)
+    parser.add_argument("-ic", "--in_channels", type=int)
+    parser.add_argument("-f", "--frame", type=int)
+    parser.add_argument("-h", "--height", type=int)
+    parser.add_argument("-w", "--weight", type=int)
+    parser.add_argument("-kf", "--kernel_frame", type=int)
+    parser.add_argument("-kh", "--kernel_height", type=int)
+    parser.add_argument("-kw", "--kernel_weight", type=int)
     args = parser.parse_args()
+
+    print(args)
     
-    bs = 1
-    T = 30
-    H = 32
-    W = 32
-    in_channels = 32
-    out_channels = 32
-    kT = 1
-    kH = 1
-    kW = 1
+    bs = args.bs
+    T = args.f
+    H = args.h
+    W = args.w
+    in_channels = args.ic
+    out_channels = args.oc
+    kT = args.kf
+    kH = args.kh
+    kW = args.kw
 
     dt = torch.half
     cuda = torch.device('cuda:0')
