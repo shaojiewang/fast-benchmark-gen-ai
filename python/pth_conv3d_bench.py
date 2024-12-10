@@ -34,17 +34,18 @@ def split_conv(input, weight, *args, **kwargs):
                 output += torch_conv3d(split_inputs[i], split_conv_weight[i], *args, **kwargs)
         return output
 
-def profile_op(func, *args):
+def profile_op(func, *args, **kargs):
     # print(f"args={args}")
     # timeit.timeit(f"{func}({*args})", number=10) 
-    func(*args)
+    output_tensor = func(*args, **kargs)
+    print(f"output_tensor=[{output_tensor.size()}]")
     start_event = torch.cuda.Event(enable_timing=True)
     end_event = torch.cuda.Event(enable_timing=True)
     start_event.record()
 
     ncalls = 5
     for i in range(ncalls):
-        func(*args)
+        func(*args, **kargs)
     
     torch.cuda.synchronize()
     end_event.record()
@@ -87,7 +88,7 @@ if __name__ == "__main__":
     tensor_weight = torch.randn(out_channels, in_channels, kT, kH, kW, dtype=dt, device='cuda')
 
     # split_conv(tensor_input, tensor_weight)
-    elapsed_time = profile_op(split_conv, tensor_input, tensor_weight)
+    elapsed_time = profile_op(split_conv, tensor_input, tensor_weight, padding='same')
     gflops = bs * T * H * W * in_channels * out_channels * kT * kH * kW * 2.0 / 1000 / 1000 / 1000
     TFLOPS = gflops / elapsed_time
 
