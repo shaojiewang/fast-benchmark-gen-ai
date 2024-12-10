@@ -34,9 +34,25 @@ def split_conv(input, weight, *args, **kwargs):
                 output += torch_conv3d(split_inputs[i], split_conv_weight[i], *args, **kwargs)
         return output
 
-def time_op(func, *args):
-    timeit. 
-    pass    
+def profile_op(func, *args):
+    # print(f"args={args}")
+    # timeit.timeit(f"{func}({*args})", number=10) 
+    func(*args)
+    start_event = torch.cuda.Event(enable_timing=True)
+    end_event = torch.cuda.Event(enable_timing=True)
+    start_event.record()
+
+    ncalls = 5
+    for i in range(ncalls):
+        func(*args)
+    
+    torch.cuda.synchronize()
+    end_event.record()
+    torch.cuda.synchronize()
+    elapsed_time_ms = start_event.elapsed_time(end_event) / ncalls
+
+    return elapsed_time_ms
+    
 
 if __name__ == "__main__":
     import argparse
@@ -46,31 +62,37 @@ if __name__ == "__main__":
     parser.add_argument("-oc", "--out_channels", type=int)
     parser.add_argument("-ic", "--in_channels", type=int)
     parser.add_argument("-f", "--frame", type=int)
-    parser.add_argument("-h", "--height", type=int)
-    parser.add_argument("-w", "--weight", type=int)
+    parser.add_argument("-hi", "--height", type=int)
+    parser.add_argument("-wi", "--width", type=int)
     parser.add_argument("-kf", "--kernel_frame", type=int)
     parser.add_argument("-kh", "--kernel_height", type=int)
-    parser.add_argument("-kw", "--kernel_weight", type=int)
+    parser.add_argument("-kw", "--kernel_width", type=int)
     args = parser.parse_args()
 
     print(args)
     
-    bs = args.bs
-    T = args.f
-    H = args.h
-    W = args.w
-    in_channels = args.ic
-    out_channels = args.oc
-    kT = args.kf
-    kH = args.kh
-    kW = args.kw
+    bs = args.batch_size
+    T = args.frame
+    H = args.height
+    W = args.width
+    in_channels = args.in_channels
+    out_channels = args.out_channels
+    kT = args.kernel_frame
+    kH = args.kernel_height
+    kW = args.kernel_width
 
     dt = torch.half
     cuda = torch.device('cuda:0')
     tensor_input = torch.randn(bs, in_channels, T, H, W, dtype=dt, device='cuda')
     tensor_weight = torch.randn(out_channels, in_channels, kT, kH, kW, dtype=dt, device='cuda')
 
-    split_conv(tensor_input, tensor_weight)
+    # split_conv(tensor_input, tensor_weight)
+    elapsed_time = profile_op(split_conv, tensor_input, tensor_weight)
+    gflops = bs * T * H * W * in_channels * out_channels * kT * kH * kW * 2.0 / 1000 / 1000 / 1000
+    TFLOPS = gflops / elapsed_time
+
+    print(f"input [bs, ic, F, H, W]=[{bs}, {in_channels}, {T}, {H}, {W}], weight [oc, ic, kF, kH, kW]=[{out_channels}, {in_channels}, {kT}, {kH}, {kW}], time={elapsed_time:.3f}ms, TFLOPS={TFLOPS:.3f}TFLOPS")
+
 
 
 
