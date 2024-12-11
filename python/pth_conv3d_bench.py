@@ -88,7 +88,8 @@ if __name__ == "__main__":
     tensor_weight = torch.randn(out_channels, in_channels, kT, kH, kW, dtype=dt, device='cuda')
 
     # split_conv(tensor_input, tensor_weight)
-    elapsed_time = profile_op(split_conv, tensor_input, tensor_weight, padding='same')
+    #elapsed_time = profile_op(split_conv, tensor_input, tensor_weight, padding='same')
+    elapsed_time = profile_op(split_conv, tensor_input, tensor_weight)
     gflops = bs * T * H * W * in_channels * out_channels * kT * kH * kW * 2.0 / 1000 / 1000 / 1000
     TFLOPS = gflops / elapsed_time
 
