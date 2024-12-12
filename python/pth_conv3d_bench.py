@@ -34,6 +34,10 @@ def split_conv(input, weight, *args, **kwargs):
                 output += torch_conv3d(split_inputs[i], split_conv_weight[i], *args, **kwargs)
         return output
 
+def try_conv3d_ndhwc(input, model, *args, **kwargs):
+    output = model(input)
+    return output
+
 def profile_op(func, *args, **kargs):
     # print(f"args={args}")
     # timeit.timeit(f"{func}({*args})", number=10) 
@@ -82,7 +86,7 @@ if __name__ == "__main__":
     kH = args.kernel_height
     kW = args.kernel_width
 
-    dt = torch.half
+    dt = torch.bfloat16
     cuda = torch.device('cuda:0')
     tensor_input = torch.randn(bs, in_channels, T, H, W, dtype=dt, device='cuda')
     tensor_weight = torch.randn(out_channels, in_channels, kT, kH, kW, dtype=dt, device='cuda')
@@ -93,8 +97,17 @@ if __name__ == "__main__":
     gflops = bs * T * H * W * in_channels * out_channels * kT * kH * kW * 2.0 / 1000 / 1000 / 1000
     TFLOPS = gflops / elapsed_time
 
+    print("ncdhw:")
     print(f"input [bs, ic, F, H, W]=[{bs}, {in_channels}, {T}, {H}, {W}], weight [oc, ic, kF, kH, kW]=[{out_channels}, {in_channels}, {kT}, {kH}, {kW}], time={elapsed_time:.3f}ms, TFLOPS={TFLOPS:.3f}TFLOPS")
 
-
+    print("ndhwc:")
+    model = nn.Sequential(nn.Conv3d(out_channels, in_channels, kT)).cuda().bfloat16()
+    # model = nn.utils.convert_conv3d_weight_memory_format(model, torch.channels_last_3d)
+    tensor_input = tensor_input.to(memory_format=torch.channels_last_3d)
+    model = model.to(memory_format=torch.channels_last_3d)
+    input_ndhwc = torch.randn(bs, T, H, W, in_channels, dtype=dt, device='cuda')
+    elapsed_time = profile_op(try_conv3d_ndhwc, tensor_input, model)
+    TFLOPS = gflops / elapsed_time
+    print(f"input [bs, ic, F, H, W]=[{bs}, {in_channels}, {T}, {H}, {W}], weight [oc, ic, kF, kH, kW]=[{out_channels}, {in_channels}, {kT}, {kH}, {kW}], time={elapsed_time:.3f}ms, TFLOPS={TFLOPS:.3f}TFLOPS")
 
 
