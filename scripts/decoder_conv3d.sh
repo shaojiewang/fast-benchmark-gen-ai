@@ -1,17 +1,23 @@
 #/bin/bash
 num_latent_frames=19
-
+time_total=0.0
 for((i=0;i<19;i++));
 do
 echo "post quant conv"
-python python/pth_conv3d_bench.py -bs=1 -oc=8 -ic=8 -f=2 -hi=72 -wi=52 -kf=1 -kh=1 -kw=1
+time_ms=$(python python/pth_conv3d_bench.py -bs=1 -oc=8 -ic=8 -f=2 -hi=72 -wi=52 -kf=1 -kh=1 -kw=1 | awk -F'=|ms' '{print $5}')
+time_total=$(echo "$time_total + $time_ms" | bc -l)
+echo ${time_total}
 
 echo "vae decoder"
 echo "res block 1 and 2"
-python python/pth_conv3d_bench.py -bs=1 -oc=512 -ic=8 -f=4 -hi=74 -wi=54 -kf=3 -kh=3 -kw=3
+time_ms=$(python python/pth_conv3d_bench.py -bs=1 -oc=512 -ic=8 -f=4 -hi=74 -wi=54 -kf=3 -kh=3 -kw=3  | awk -F'=|ms' '{print $5}')
+time_total=$(echo "$time_total + $time_ms" | bc -l)
+echo $time_total
 for((i=1;i<=16;i++));
 do
-python python/pth_conv3d_bench.py -bs=1 -oc=512 -ic=512 -f=4 -hi=74 -wi=54 -kf=3 -kh=3 -kw=3
+time_ms=$(python python/pth_conv3d_bench.py -bs=1 -oc=512 -ic=512 -f=4 -hi=74 -wi=54 -kf=3 -kh=3 -kw=3 | awk -F'=|ms' '{print $5}')
+time_total=$(echo "$time_total + $time_ms" | bc -l)
+echo $time_total
 done
 echo "3d transpose conv1"
 python python/pth_conv3d_bench.py -bs=1 -oc=4096 -ic=512 -f=4 -hi=74 -wi=54 -kf=3 -kh=3 -kw=3

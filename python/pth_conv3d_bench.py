@@ -42,7 +42,7 @@ def profile_op(func, *args, **kargs):
     # print(f"args={args}")
     # timeit.timeit(f"{func}({*args})", number=10) 
     output_tensor = func(*args, **kargs)
-    print(f"output_tensor=[{output_tensor.size()}]")
+    # print(f"output_tensor=[{output_tensor.size()}]")
     start_event = torch.cuda.Event(enable_timing=True)
     end_event = torch.cuda.Event(enable_timing=True)
     start_event.record()
@@ -56,7 +56,7 @@ def profile_op(func, *args, **kargs):
     torch.cuda.synchronize()
     elapsed_time_ms = start_event.elapsed_time(end_event) / ncalls
 
-    return elapsed_time_ms
+    return elapsed_time_ms, output_tensor.size()
     
 
 if __name__ == "__main__":
@@ -76,7 +76,7 @@ if __name__ == "__main__":
     parser.add_argument("-ss", "--space_stride", type=int, default=1)
     args = parser.parse_args()
 
-    print(args)
+    # print(args)
     
     bs = args.batch_size
     T = args.frame
@@ -97,12 +97,12 @@ if __name__ == "__main__":
 
     # split_conv(tensor_input, tensor_weight)
     #elapsed_time = profile_op(split_conv, tensor_input, tensor_weight, padding='same')
-    elapsed_time = profile_op(split_conv, tensor_input, tensor_weight, stride=(TS,SS,SS))
-    gflops = bs * T * H * W * in_channels * out_channels * kT * kH * kW * 2.0 / 1000 / 1000 / 1000
+    elapsed_time, ouput_shape = profile_op(split_conv, tensor_input, tensor_weight, stride=(TS,SS,SS))
+    gflops = ouput_shape[0] * ouput_shape[2] * ouput_shape[3] * ouput_shape[4] * in_channels * out_channels * kT * kH * kW * 2.0 / 1000 / 1000 / 1000
     TFLOPS = gflops / elapsed_time
 
-    print("ncdhw:")
-    print(f"input [bs, ic, F, H, W]=[{bs}, {in_channels}, {T}, {H}, {W}], weight [oc, ic, kF, kH, kW]=[{out_channels}, {in_channels}, {kT}, {kH}, {kW}], time={elapsed_time:.3f}ms, TFLOPS={TFLOPS:.3f}TFLOPS")
+    # print("ncdhw:")
+    print(f"input [bs, ic, F, H, W]=[tensor_input.size()], weight [oc, ic, kF, kH, kW]=[tensor_weight.size()], ouput [bs, oc, F, H, W]=[{ouput_shape}] time={elapsed_time:.3f}ms, TFLOPS={TFLOPS:.3f}TFLOPS")
 
     exit(0)
 
