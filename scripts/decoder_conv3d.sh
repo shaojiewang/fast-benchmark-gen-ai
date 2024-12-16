@@ -39,5 +39,18 @@ for((i=1;i<=6;i++));
 do
 python python/pth_conv3d_bench.py -bs=1 -oc=128 -ic=128 -f=7 -hi=578 -wi=418 -kf=3 -kh=3 -kw=3
 done
+echo "conv last"
+python python/pth_conv3d_bench.py -bs=1 -oc=3 -ic=128 -f=7 -hi=578 -wi=418 -kf=3 -kh=3 -kw=3
+
+echo "vae encoder"
+python python/pth_conv3d_bench.py -bs=1 -oc=32 -ic=3 -f=3 -hi=578 -wi=418 -kf=3 -kh=3 -kw=3
+echo "res block 1"
+for((i=1;i<=8;i++));
+do
+python python/pth_conv3d_bench.py -bs=1 -oc=32 -ic=32 -f=3 -hi=578 -wi=418 -kf=3 -kh=3 -kw=3
+done
+echo "space down block"
+python python/pth_conv3d_bench.py -bs=1 -oc=32 -ic=32 -f=3 -hi=578 -wi=418 -kf=3 -kh=3 -kw=3 -ts=1 -ss=2
+echo ""
 
 

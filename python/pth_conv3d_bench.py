@@ -72,6 +72,8 @@ if __name__ == "__main__":
     parser.add_argument("-kf", "--kernel_frame", type=int)
     parser.add_argument("-kh", "--kernel_height", type=int)
     parser.add_argument("-kw", "--kernel_width", type=int)
+    parser.add_argument("-ts", "--temporal_stride", type=int, default=1)
+    parser.add_argument("-ss", "--space_stride", type=int, default=1)
     args = parser.parse_args()
 
     print(args)
@@ -85,6 +87,8 @@ if __name__ == "__main__":
     kT = args.kernel_frame
     kH = args.kernel_height
     kW = args.kernel_width
+    TS = args.temporal_stride
+    SS = args.space_stride
 
     dt = torch.bfloat16
     cuda = torch.device('cuda:0')
@@ -93,7 +97,7 @@ if __name__ == "__main__":
 
     # split_conv(tensor_input, tensor_weight)
     #elapsed_time = profile_op(split_conv, tensor_input, tensor_weight, padding='same')
-    elapsed_time = profile_op(split_conv, tensor_input, tensor_weight)
+    elapsed_time = profile_op(split_conv, tensor_input, tensor_weight, stride=(TS,SS,SS))
     gflops = bs * T * H * W * in_channels * out_channels * kT * kH * kW * 2.0 / 1000 / 1000 / 1000
     TFLOPS = gflops / elapsed_time
 
