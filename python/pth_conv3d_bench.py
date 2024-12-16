@@ -1,4 +1,4 @@
-
+import csv
 import timeit
 
 import torch
@@ -74,6 +74,7 @@ if __name__ == "__main__":
     parser.add_argument("-kw", "--kernel_width", type=int)
     parser.add_argument("-ts", "--temporal_stride", type=int, default=1)
     parser.add_argument("-ss", "--space_stride", type=int, default=1)
+    parser.add_argument("-of", "--output_file", default='prof/performance.csv')
     args = parser.parse_args()
 
     # print(args)
@@ -104,6 +105,11 @@ if __name__ == "__main__":
 
     # print("ncdhw:")
     print(f"input [bs, ic, F, H, W]=[tensor_input.size()], weight [oc, ic, kF, kH, kW]=[tensor_weight.size()], ouput [bs, oc, F, H, W]=[{ouput_shape}] time={elapsed_time:.3f}ms, TFLOPS={TFLOPS:.3f}TFLOPS")
+
+    with open(args.output_file, 'a') as f:
+        writer = csv.writer(f)
+        row = [bs, out_channels, in_channels, T, H, W, kT, kH, kW, ouput_shape[2], ouput_shape[3], ouput_shape[4], f'{gflops:.3f}', f'{elapsed_time:.3f}', f'{TFLOPS:.3f}']
+        writer.writerow(row)
 
     exit(0)
 
