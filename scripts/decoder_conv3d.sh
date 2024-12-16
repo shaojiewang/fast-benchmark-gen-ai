@@ -1,5 +1,7 @@
 #/bin/bash
 CUDA_VISIBLE_DEVICES=2
+OUPUT_FILE='prof/performance.csv'
+rm -f ${OUPUT_FILE}
 apt install bc
 num_latent_frames=1
 time_total=0.0

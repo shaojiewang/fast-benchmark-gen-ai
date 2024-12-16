@@ -1,3 +1,4 @@
+import os 
 import csv
 import timeit
 
@@ -77,7 +78,13 @@ if __name__ == "__main__":
     parser.add_argument("-of", "--output_file", default='prof/performance.csv')
     args = parser.parse_args()
 
-    # print(args)
+    device_name = torch.cuda.get_device_name(0)
+    PEAK_TFLOPS = 2048.0 * torch.cuda.get_device_properties(0).multi_processor_count
+    if torch.cuda.get_device_properties(0).multi_processor_count == 80:
+        freq = 1.41
+    elif torch.cuda.get_device_properties(0).multi_processor_count == 304:
+        freq = 2.1
+    PEAK_TFLOPS *= freq / 1000
     
     bs = args.batch_size
     T = args.frame
@@ -106,9 +113,15 @@ if __name__ == "__main__":
     # print("ncdhw:")
     print(f"input [bs, ic, F, H, W]=[tensor_input.size()], weight [oc, ic, kF, kH, kW]=[tensor_weight.size()], ouput [bs, oc, F, H, W]=[{ouput_shape}] time={elapsed_time:.3f}ms, TFLOPS={TFLOPS:.3f}TFLOPS")
 
+    if not os.path.exists(args.output_file):
+        with open(args.output_file, 'w') as f:
+            writer = csv.writer(f)
+            row = ['bs', 'o_c', 'i_c', 'i_f', 'i_h', 'i_w', 'k_f', 'k_h', 'k_w', 'o_f', 'o_h', 'o_w', 'gflop', 'time(ms)', 'TFLOPS', 'efficiency']
+            writer.writerow(row)
+
     with open(args.output_file, 'a') as f:
         writer = csv.writer(f)
-        row = [bs, out_channels, in_channels, T, H, W, kT, kH, kW, ouput_shape[2], ouput_shape[3], ouput_shape[4], f'{gflops:.3f}', f'{elapsed_time:.3f}', f'{TFLOPS:.3f}']
+        row = [bs, out_channels, in_channels, T, H, W, kT, kH, kW, ouput_shape[2], ouput_shape[3], ouput_shape[4], f'{gflops:.3f}', f'{elapsed_time:.3f}', f'{TFLOPS:.3f}', f'{TFLOPS / PEAK_TFLOPS :.3f}']
         writer.writerow(row)
 
     exit(0)
