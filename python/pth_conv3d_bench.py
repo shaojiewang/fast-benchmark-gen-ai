@@ -84,8 +84,10 @@ if __name__ == "__main__":
         freq = 1.41
     elif torch.cuda.get_device_properties(0).multi_processor_count == 304:
         freq = 2.1
+    elif torch.cuda.get_device_properties(0).multi_processor_count == 132:
+        freq = 1.83 * 2 
     PEAK_TFLOPS *= freq / 1000
-    
+ 
     bs = args.batch_size
     T = args.frame
     H = args.height
