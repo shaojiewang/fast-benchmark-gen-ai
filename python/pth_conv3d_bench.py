@@ -100,6 +100,8 @@ if __name__ == "__main__":
     print("ncdhw:")
     print(f"input [bs, ic, F, H, W]=[{bs}, {in_channels}, {T}, {H}, {W}], weight [oc, ic, kF, kH, kW]=[{out_channels}, {in_channels}, {kT}, {kH}, {kW}], time={elapsed_time:.3f}ms, TFLOPS={TFLOPS:.3f}TFLOPS")
 
+    exit(0)
+
     print("ndhwc:")
     model = nn.Sequential(nn.Conv3d(out_channels, in_channels, kT)).cuda().bfloat16()
     # model = nn.utils.convert_conv3d_weight_memory_format(model, torch.channels_last_3d)
