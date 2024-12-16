@@ -94,10 +94,11 @@ if __name__ == "__main__":
     cuda = torch.device('cuda:0')
     tensor_input = torch.randn(bs, in_channels, T, H, W, dtype=dt, device='cuda')
     tensor_weight = torch.randn(out_channels, in_channels, kT, kH, kW, dtype=dt, device='cuda')
+    tensor_bias = torch.randn(out_channels, dtype=dt, device='cuda')
 
     # split_conv(tensor_input, tensor_weight)
     #elapsed_time = profile_op(split_conv, tensor_input, tensor_weight, padding='same')
-    elapsed_time, ouput_shape = profile_op(split_conv, tensor_input, tensor_weight, stride=(TS,SS,SS))
+    elapsed_time, ouput_shape = profile_op(split_conv, tensor_input, tensor_weight, tensor_bias, stride=(TS,SS,SS))
     gflops = ouput_shape[0] * ouput_shape[2] * ouput_shape[3] * ouput_shape[4] * in_channels * out_channels * kT * kH * kW * 2.0 / 1000 / 1000 / 1000
     TFLOPS = gflops / elapsed_time
 
