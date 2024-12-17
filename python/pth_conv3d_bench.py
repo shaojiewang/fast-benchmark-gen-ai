@@ -1,4 +1,4 @@
-import os 
+import os
 import csv
 import timeit
 
@@ -41,7 +41,7 @@ def try_conv3d_ndhwc(input, model, *args, **kwargs):
 
 def profile_op(func, *args, **kargs):
     # print(f"args={args}")
-    # timeit.timeit(f"{func}({*args})", number=10) 
+    # timeit.timeit(f"{func}({*args})", number=10)
     output_tensor = func(*args, **kargs)
     # print(f"output_tensor=[{output_tensor.size()}]")
     start_event = torch.cuda.Event(enable_timing=True)
@@ -51,14 +51,14 @@ def profile_op(func, *args, **kargs):
     ncalls = 5
     for i in range(ncalls):
         func(*args, **kargs)
-    
+
     torch.cuda.synchronize()
     end_event.record()
     torch.cuda.synchronize()
     elapsed_time_ms = start_event.elapsed_time(end_event) / ncalls
 
     return elapsed_time_ms, output_tensor.size()
-    
+
 
 if __name__ == "__main__":
     import argparse
@@ -85,9 +85,11 @@ if __name__ == "__main__":
     elif torch.cuda.get_device_properties(0).multi_processor_count == 304:
         freq = 2.1
     elif torch.cuda.get_device_properties(0).multi_processor_count == 132:
-        freq = 1.83 * 2 
+        freq = 1.83 * 2
+    elif torch.cuda.get_device_properties(0).multi_processor_count == 128:
+        freq = 2.52 / 2
     PEAK_TFLOPS *= freq / 1000
- 
+
     bs = args.batch_size
     T = args.frame
     H = args.height
