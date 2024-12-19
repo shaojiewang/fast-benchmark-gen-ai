@@ -12,7 +12,7 @@ torch_conv3d = F.conv3d
 def split_conv(input, weight, *args, **kwargs):
     out_channels, in_channels_over_groups, kT, kH, kW = weight.shape
     element_num = in_channels_over_groups * input.shape[2] * input.shape[3] * input.shape[4]
-    if element_num < (1 << 31) and out_channels != 1024:
+    if element_num < (1 << 31): # and out_channels != 1024:
         return torch_conv3d(input, weight, *args, **kwargs)
     else:
         output = None
