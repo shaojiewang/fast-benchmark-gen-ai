@@ -1,5 +1,7 @@
 #pytorch sdpa
-python pth_attention.py --batch_size 2 \
+CUDA_VISIBLE_DEVICES=1
+pip install diffusers einops
+python ./python/pth_attention.py  --batch_size 2 \
     --seqlen_q 4680 \
     --seqlen_kv 4680 \
     --num_head 40 \
@@ -9,7 +11,7 @@ python pth_attention.py --batch_size 2 \
     --hw_tflops 165 \
     --note "ta"
 
-python pth_attention.py --batch_size 40 \
+python ./python/pth_attention.py  --batch_size 40 \
     --seqlen_q 936 \
     --seqlen_kv 936 \
     --num_head 40 \
@@ -20,7 +22,7 @@ python pth_attention.py --batch_size 40 \
     --note "sa"
 
 
-python pth_attention.py --batch_size 40 \
+python ./python/pth_attention.py  --batch_size 40 \
     --seqlen_q 936 \
     --seqlen_kv 256 \
     --num_head 40 \
@@ -32,7 +34,7 @@ python pth_attention.py --batch_size 40 \
 
 #fa
 
-python pth_attention.py --batch_size 2 \
+python ./python/pth_attention.py  --batch_size 2 \
     --seqlen_q 4680 \
     --seqlen_kv 4680 \
     --num_head 40 \
@@ -43,7 +45,7 @@ python pth_attention.py --batch_size 2 \
     --hw_tflops 165 \
     --note "ta"
 
-python pth_attention.py --batch_size 40 \
+python ./python/pth_attention.py  --batch_size 40 \
     --seqlen_q 936 \
     --seqlen_kv 936 \
     --num_head 40 \
@@ -55,7 +57,7 @@ python pth_attention.py --batch_size 40 \
     --note "sa"
 
 
-python pth_attention.py --batch_size 40 \
+python ./python/pth_attention.py  --batch_size 40 \
     --seqlen_q 936 \
     --seqlen_kv 256 \
     --num_head 40 \

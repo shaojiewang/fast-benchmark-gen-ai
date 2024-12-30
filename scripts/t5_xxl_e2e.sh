@@ -1,1 +1,1 @@
-python T5_xxl.py
+python ./python/T5_xxl.py
